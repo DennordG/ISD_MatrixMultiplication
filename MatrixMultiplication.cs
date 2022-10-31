@@ -66,19 +66,65 @@ public class MatrixMultiplication
 
         var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParalellism };
 
-        for (var i = 0; i < n; i++)
+        Parallel.For(0, n, parallelOptions, i =>
         {
             result[i] = new int[n];
 
             for (var j = 0; j < n; j++)
             {
-                Parallel.For(0, n, parallelOptions, k =>
+                for (var k = 0; k < n; k++)
                 {
                     Interlocked.Add(ref result[i][j], _a[i][k] * _b[k][j]);
-                });
+                }
+            }
+        });
+
+        return result;
+    }
+
+    [Benchmark]
+    [Arguments(1)]
+    [Arguments(2)]
+    [Arguments(4)]
+    public int[][] InParallelWithOptimizedMemoryAccess(int degreeOfParalellism)
+    {
+        var n = _a.Length;
+        var result = new int[n][];
+
+        var transposedB = Transpose(_b);
+
+        var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = degreeOfParalellism };
+
+        Parallel.For(0, n, parallelOptions, i =>
+        {
+            result[i] = new int[n];
+
+            for (var j = 0; j < n; j++)
+            {
+                for (var k = 0; k < n; k++)
+                {
+                    Interlocked.Add(ref result[i][j], _a[i][k] * transposedB[j][k]);
+                }
+            }
+        });
+
+        return result;
+    }
+
+    private static int[][] Transpose(int[][] matrix)
+    {
+        var n = matrix.Length;
+        var transpose = new int[n][];
+
+        for (var i = 0; i < n; i++)
+        {
+            transpose[i] = new int[n];
+            for (var j = 0; j < n; j++)
+            {
+                transpose[i][j] = matrix[j][i];
             }
         }
 
-        return result;
+        return transpose;
     }
 }
