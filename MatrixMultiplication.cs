@@ -74,7 +74,7 @@ public class MatrixMultiplication
             {
                 for (var k = 0; k < n; k++)
                 {
-                    Interlocked.Add(ref result[i][j], _a[i][k] * _b[k][j]);
+                    result[i][j] += _a[i][k] * _b[k][j];
                 }
             }
         });
@@ -103,7 +103,7 @@ public class MatrixMultiplication
             {
                 for (var k = 0; k < n; k++)
                 {
-                    Interlocked.Add(ref result[i][j], _a[i][k] * transposedB[j][k]);
+                    result[i][j] += _a[i][k] * transposedB[j][k];
                 }
             }
         });
